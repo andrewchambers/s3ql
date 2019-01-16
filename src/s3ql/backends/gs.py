@@ -217,6 +217,9 @@ class Backend(AbstractBackend, metaclass=ABCDocstMeta):
             if exc.code == 404:
                 raise DanglingStorageURLError("Bucket '%s' does not exist" %
                                               self.bucket_name)
+            if exc.code == 403:
+                log.debug("Don't have permission to query the bucket, but it may still be accessible.")
+                return
             exc = _map_request_error(exc, None)
             if exc:
                 raise exc
