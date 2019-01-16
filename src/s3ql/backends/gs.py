@@ -107,9 +107,6 @@ class GAuthHTTPRequestor:
         if not isinstance(body, bytes):
             body = str(body).encode('ascii')
 
-        if timeout is not None:
-            raise ValueError('*timeout* argument is not supported')
-
         hit = re.match(r'^(https?)://([^:/]+)(?::(\d+))?(.*)$', url)
         if not hit:
             raise ValueError('Unsupported URL: ' + url)
@@ -219,6 +216,10 @@ class Backend(AbstractBackend, metaclass=ABCDocstMeta):
             if exc.code == 404:
                 raise DanglingStorageURLError("Bucket '%s' does not exist" %
                                               self.bucket_name)
+            if exc.code == 403:
+                log.debug("Don't have permission to query the bucket, but it may still be accessible.")
+                return
+
             exc = _map_request_error(exc, None)
             if exc:
                 raise exc
